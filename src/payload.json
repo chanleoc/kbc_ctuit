@@ -1,0 +1,110 @@
+{
+    "labor": {    
+        "startDate": "",
+        "endDate": "",
+        "dateOutputFormat": 0,
+        "language": 0,
+        "outputType": 5,
+        "periodID": 0,
+        "locationGroupID": 31,
+        "reportID": 358,
+        "refinementOptions":[
+            {
+                "key": "cboPeriodSel",
+                "value": "1490"
+            },
+            {
+                "key": "cboMetric",
+                "value": "1"
+            },
+            {
+                "key": "cboMetric_text",
+                "value": "Labor Hours"
+            },
+            {
+                "key": "cboMetricType",
+                "value": "2"
+            },
+            {
+                "key": "cboMetricType_text",
+                "value": "Forecast"
+            },
+            {
+                "key": "cboSortOrders",
+                "value": "2"
+            },
+            {
+                "key": "cboSortOrders_text",
+                "value": "Location > Job"
+            },
+            {
+                "key": "chkElapsedDaysOnly",
+                "value": "0"
+            },
+            {
+                "key": "cboSchedule",
+                "value": "0"
+            },
+            {
+                "key": "cboSchedule_text",
+                "value": "All Posted Schedules"
+            },
+            {
+                "key": "cboExcludeZeroRate",
+                "value": "0"
+            },
+            {
+                "key": "cboExcludeZeroRate_text",
+                "value": "Include"
+            }
+        ]
+    },
+    "dine-in":{
+        "startDate": "",
+        "endDate": "",
+        "dateOutputFormat": 0,
+        "language": 0,
+        "outputType": 7,
+        "periodID": 0,
+        "locationGroupID": 31,
+        "reportID": 51,
+        "refinementOptions":[
+            {
+                "key": "cboMetric",
+                "value": "5"
+            },
+            {
+                "key": "cboVarianceType",
+                "value": "0"
+            },
+            {
+                "key": "cboShowDetail",
+                "value": "0"
+            }
+        ]
+    },
+    "catering":{
+        "startDate": "",
+        "endDate": "",
+        "dateOutputFormat": 0,
+        "language": 0,
+        "outputType": 7,
+        "periodID": 0,
+        "locationGroupID": 31,
+        "reportID": 51,
+        "refinementOptions":[
+            {
+                "key": "cboMetric",
+                "value": "6"
+            },
+            {
+                "key": "cboVarianceType",
+                "value": "0"
+            },
+            {
+                "key": "cboShowDetail",
+                "value": "0"
+            }
+        ]
+    }
+}

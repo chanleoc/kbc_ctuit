@@ -1,0 +1,42 @@
+{
+    "title": "Ctuit Extractor",
+    "type": "object",
+    "required": [
+        "X-UserID",
+        "#X-UserAuthToken",
+        "template",
+        "start_date",
+        "end_date"
+    ],
+    "properties": {
+        "X-UserID": {
+            "type": "string",
+            "description": "User APi ID",
+            "propertyOrder": 1
+        },
+        "#X-UserAuthToken":{
+            "type": "string",
+            "description": "User APi Token",
+            "propertyOrder": 2
+        },
+        "template": {
+            "type": "string",
+            "enum": [
+                "dine-in",
+                "catering",
+                "labor"
+            ],
+            "propertyOrder": 3
+        },
+        "start_date":{
+            "type": "string",
+            "description": "Leave blank for 'Today'",
+            "propertyOrder": 4
+        },
+        "end_date": {
+            "type": "string",
+            "description": "Leave blank if add 7 days from start_date",
+            "propertyOrder": 5
+        }
+    }
+}
