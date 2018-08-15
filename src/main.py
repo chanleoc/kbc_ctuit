@@ -30,7 +30,7 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     datefmt="%Y-%m-%d %H:%M:%S")
-"""
+
 logger = logging.getLogger()
 logging_gelf_handler = logging_gelf.handlers.GELFTCPSocketHandler(
     host=os.getenv('KBC_LOGGER_ADDR'),
@@ -41,7 +41,7 @@ logger.addHandler(logging_gelf_handler)
 
 # removes the initial stdout logging
 logger.removeHandler(logger.handlers[0])
-"""
+
 
 ### Access the supplied rules
 cfg = docker.Config('/data/')
