@@ -30,7 +30,7 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     datefmt="%Y-%m-%d %H:%M:%S")
-"""
+
 logger = logging.getLogger()
 logging_gelf_handler = logging_gelf.handlers.GELFTCPSocketHandler(
     host=os.getenv('KBC_LOGGER_ADDR'),
@@ -41,7 +41,7 @@ logger.addHandler(logging_gelf_handler)
 
 # removes the initial stdout logging
 logger.removeHandler(logger.handlers[0])
-"""
+
 
 ### Access the supplied rules
 cfg = docker.Config('/data/')
@@ -94,22 +94,17 @@ def get_output_tables(out_tables):
 
     return in_name
 
+
 class Report:
     
     def __init__(self,reportType,startDate, endDate):                    
         
         self.Exit = 0
-        self.startDate = startDate
-        if startDate == "":
-            temp_date = dateparser.parse("today")
-            self.startDate = temp_date.strftime("%Y-%m-%d")
-        else:
-            self.startDate = startDate
-        if endDate == "" or startDate == "":
-            self.endDate = (datetime.datetime.strptime(startDate, "%Y-%m-%d") + datetime.timedelta(days=7)).strftime("%Y-%m-%d")
-        else:
-            self.endDate = endDate
-        logging.info("startDate: {0}, endDate: {1}".format(startDate, endDate)) 
+        self.startDate = self.parseDate(startDate)
+        self.endDate = self.parseDate(endDate)
+        logging.info("startDate: {0}, endDate: {1}".format(self.startDate, self.endDate)) 
+        if self.endDate < self.startDate:
+            raise Exception("Please validate your date parameters.")
         
         self.headers = {
             'X-UserID': userid,
@@ -121,6 +116,17 @@ class Report:
         
         self.ExtractText()
         
+    def parseDate(self, date):
+        """
+        Parsing Input date parameter
+        """
+
+        temp = dateparser.parse(date)
+        temp_date = temp.strftime("%Y-%m-%d")
+
+        return temp_date
+
+
     def loadPayload(self, template):
         """
         Loading payload template from payload.json
@@ -131,8 +137,8 @@ class Report:
             json_template = json.load(f)
         
         payload = json_template[template]
-        payload["startDate"] = start_date + "T00:00:00.000Z"
-        payload["endDate"] = end_date + "T00:00:00.000Z"
+        payload["startDate"] = self.startDate + "T00:00:00.000Z"
+        payload["endDate"] = self.endDate + "T00:00:00.000Z"
         logging.info("Payload: {0}".format(payload))
 
         return payload
@@ -147,7 +153,8 @@ class Report:
         response = requests.request("POST", url, data=json.dumps(self.payload), headers=self.headers)
         logging.info("POST Status: {0}".format(response.status_code))
         logging.info("POST Return: {0}".format(response.text))
-    
+
+        #print(response)
         if response.json()["isValid"]==True:            
             self.reportID = str(response.json()["id"])
         else:
@@ -259,12 +266,11 @@ def main():
     data_in = Report(template, start_date, end_date)
     data_in.output_1cell(filename)
 
-
     return
 
 
 if __name__ == "__main__":
 
     main()
-
+    
     logging.info("Done.")
