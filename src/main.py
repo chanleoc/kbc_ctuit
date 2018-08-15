@@ -100,10 +100,10 @@ class Report:
     def __init__(self,reportType,startDate, endDate):                    
         
         self.Exit = 0
-        self.startDate = self.parseDate(start_date)
+        self.startDate = self.parseDate(startDate)
         self.endDate = self.parseDate(endDate)
-        logging.info("startDate: {0}, endDate: {1}".format(startDate, endDate)) 
-        if endDate < startDate:
+        logging.info("startDate: {0}, endDate: {1}".format(self.startDate, self.endDate)) 
+        if self.endDate < self.startDate:
             raise Exception("Please validate your date parameters.")
         
         self.headers = {
@@ -137,8 +137,8 @@ class Report:
             json_template = json.load(f)
         
         payload = json_template[template]
-        payload["startDate"] = start_date + "T00:00:00.000Z"
-        payload["endDate"] = end_date + "T00:00:00.000Z"
+        payload["startDate"] = self.startDate + "T00:00:00.000Z"
+        payload["endDate"] = self.endDate + "T00:00:00.000Z"
         logging.info("Payload: {0}".format(payload))
 
         return payload
@@ -153,7 +153,8 @@ class Report:
         response = requests.request("POST", url, data=json.dumps(self.payload), headers=self.headers)
         logging.info("POST Status: {0}".format(response.status_code))
         logging.info("POST Return: {0}".format(response.text))
-    
+
+        #print(response)
         if response.json()["isValid"]==True:            
             self.reportID = str(response.json()["id"])
         else:
