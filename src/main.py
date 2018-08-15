@@ -94,22 +94,17 @@ def get_output_tables(out_tables):
 
     return in_name
 
+
 class Report:
     
     def __init__(self,reportType,startDate, endDate):                    
         
         self.Exit = 0
-        self.startDate = startDate
-        if startDate == "":
-            temp_date = dateparser.parse("today")
-            self.startDate = temp_date.strftime("%Y-%m-%d")
-        else:
-            self.startDate = startDate
-        if endDate == "" or startDate == "":
-            self.endDate = (datetime.datetime.strptime(startDate, "%Y-%m-%d") + datetime.timedelta(days=7)).strftime("%Y-%m-%d")
-        else:
-            self.endDate = endDate
+        self.startDate = self.parseDate(start_date)
+        self.endDate = self.parseDate(endDate)
         logging.info("startDate: {0}, endDate: {1}".format(startDate, endDate)) 
+        if endDate < startDate:
+            raise Exception("Please validate your date parameters.")
         
         self.headers = {
             'X-UserID': userid,
@@ -121,6 +116,17 @@ class Report:
         
         self.ExtractText()
         
+    def parseDate(self, date):
+        """
+        Parsing Input date parameter
+        """
+
+        temp = dateparser.parse(date)
+        temp_date = temp.strftime("%Y-%m-%d")
+
+        return temp_date
+
+
     def loadPayload(self, template):
         """
         Loading payload template from payload.json
@@ -259,12 +265,11 @@ def main():
     data_in = Report(template, start_date, end_date)
     data_in.output_1cell(filename)
 
-
     return
 
 
 if __name__ == "__main__":
 
     main()
-
+    
     logging.info("Done.")

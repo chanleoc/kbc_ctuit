@@ -11,16 +11,19 @@
     "properties": {
         "X-UserID": {
             "type": "string",
+            "title": "User ID",
             "description": "User APi ID",
             "propertyOrder": 1
         },
         "#X-UserAuthToken":{
             "type": "string",
+            "title": "User Auth Token",
             "description": "User APi Token",
             "propertyOrder": 2
         },
         "template": {
             "type": "string",
+            "title": "Endpoint Template",
             "enum": [
                 "dine-in",
                 "catering",
@@ -30,12 +33,16 @@
         },
         "start_date":{
             "type": "string",
-            "description": "Leave blank for 'Today'",
+            "title": "Start Date",
+            "description": "Default: today; Alternate Parameters: 1 day ago, 2 days ago, 1 week ago",
+            "default": "today",
             "propertyOrder": 4
         },
         "end_date": {
             "type": "string",
-            "description": "Leave blank if add 7 days from start_date",
+            "title": "End Date",
+            "description": "Default: today; Alternate Parameters: 1 day ago, 2 days ago, 1 week ago",
+            "default": "today",
             "propertyOrder": 5
         }
     }
