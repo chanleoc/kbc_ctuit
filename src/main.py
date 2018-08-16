@@ -210,9 +210,9 @@ class Report:
         Output everything into one cell 
         """
 
-        date_concat = "{0} to {1}".format(start_date,end_date)
+        date_concat = "{0} to {1}".format(self.startDate,self.endDate)
         column_name = ["range", "start_date", "end_date", "content"]
-        data = [date_concat, start_date, end_date, "{0}".format(self.content)]
+        data = [date_concat, self.startDate, self.endDate, "{0}".format(self.content)]
         data_out = [column_name, data]
         with open(filename, "w") as f:
             writer = csv.writer(f)
