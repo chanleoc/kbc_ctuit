@@ -106,5 +106,16 @@
                 "value": "0"
             }
         ]
-    }
+    },
+    "flash": {
+        "startDate": "",
+        "endDate": "",
+        "dateOutputFormat": 0,
+        "language": 0,
+        "outputType": 7,
+        "periodID": 0,
+        "locationGroupID": 31,
+        "reportID": 1019,
+        "refinementOptions": []
+     }
 }

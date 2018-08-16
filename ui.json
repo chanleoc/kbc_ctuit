@@ -27,7 +27,8 @@
             "enum": [
                 "dine-in",
                 "catering",
-                "labor"
+                "labor",
+                "flash"
             ],
             "propertyOrder": 3
         },
