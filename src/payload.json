@@ -117,5 +117,16 @@
         "locationGroupID": 31,
         "reportID": 1019,
         "refinementOptions": []
+     },
+     "waste":{
+        "dateOutputFormat": 0,
+        "endDate": "2018-08-19T00:00:00.000Z",
+        "language": 0,
+        "outputType": 5,
+        "periodID": 0,
+        "locationGroupID": 31,
+        "reportID": 1063,
+        "startDate": "2018-08-19T00:00:00.000Z",
+        "refinementOptions": []
      }
 }
