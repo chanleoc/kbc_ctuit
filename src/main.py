@@ -186,9 +186,9 @@ class Report:
         self.CheckStatus()
 
         tries = 0
-        while tries < 3 and self.status != 3:
-            time.sleep(5)
-            if self.status == "2":
+        while tries < 5 and self.status != 3:
+            time.sleep(10)
+            if self.status == "1" or self.status == "2":
                 logging.info("Status: {0} - Pending...".format(self.status))
                 self.CheckStatus()
             if self.status == "5":
