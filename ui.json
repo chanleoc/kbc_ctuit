@@ -29,7 +29,8 @@
                 "catering",
                 "labor",
                 "flash",
-                "waste"
+                "waste",
+                "ingredient-orders"
             ],
             "propertyOrder": 3
         },

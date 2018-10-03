@@ -117,8 +117,8 @@
         "locationGroupID": 31,
         "reportID": 1019,
         "refinementOptions": []
-     },
-     "waste":{
+    },
+    "waste":{
         "startDate": "",
         "endDate": "",
         "dateOutputFormat": 0,
@@ -128,5 +128,16 @@
         "locationGroupID": 31,
         "reportID": 1063,
         "refinementOptions": []
-     }
+    },
+    "ingredient-orders": {
+        "startDate": "",
+        "endDate": "",
+        "dateOutputFormat": 0,
+        "language": 0,
+        "outputType": 5,
+        "periodID": 0,
+        "locationGroupID": 31,
+        "reportID": 412,
+        "refinementOptions": []
+    }
 }
