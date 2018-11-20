@@ -6,7 +6,9 @@
         "#X-UserAuthToken",
         "template",
         "start_date",
-        "end_date"
+        "end_date",
+        "custom_payload"
+
     ],
     "properties": {
         "X-UserID": {
@@ -30,7 +32,8 @@
                 "labor",
                 "flash",
                 "waste",
-                "ingredient-orders"
+                "ingredient-orders",
+                "custom"
             ],
             "propertyOrder": 3
         },
@@ -47,6 +50,13 @@
             "description": "Default: today; Alternate Parameters: 1 day ago, 2 days ago, 1 week ago",
             "default": "today",
             "propertyOrder": 5
+        },
+        "custom_payload": {
+            "type": "json",
+            "title": "Custom Payload",
+            "description": "Have to select custom template",
+            "default": {},
+            "propertyOrder": 6
         }
     }
 }

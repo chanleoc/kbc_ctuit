@@ -51,6 +51,7 @@ token = params["#X-UserAuthToken"]
 template = params["template"]
 start_date = params["start_date"]
 end_date = params["end_date"]
+custom_payload = params["custom_payload"]
 
 ### Get proper list of tables
 cfg = docker.Config('/data/')
@@ -112,7 +113,10 @@ class Report:
             'Content-Type': "application/json"
             }
 
-        self.payload = self.loadPayload(reportType)
+        if reportType == "custom":
+            self.payload = custom_payload
+        else:
+            self.payload = self.loadPayload(reportType)
         
         self.ExtractText()
         
