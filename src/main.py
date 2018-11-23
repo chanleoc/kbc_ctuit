@@ -49,9 +49,10 @@ params = cfg.get_parameters()
 userid = params["X-UserID"]
 token = params["#X-UserAuthToken"]
 template = params["template"]
+active_restaurant_loop = bool(params["active_restaurant_loop"])
 start_date = params["start_date"]
 end_date = params["end_date"]
-custom_payload = params["custom_payload"]
+custom_payload = params["custom_payload"]#.replace('\\n', '\n')
 
 ### Get proper list of tables
 cfg = docker.Config('/data/')
@@ -101,6 +102,7 @@ class Report:
     def __init__(self,reportType,startDate, endDate):                    
         
         self.Exit = 0
+        self.filename = DEFAULT_FILE_DESTINATION+reportType+".csv"
         self.startDate = self.parseDate(startDate)
         self.endDate = self.parseDate(endDate)
         logging.info("startDate: {0}, endDate: {1}".format(self.startDate, self.endDate)) 
@@ -114,11 +116,43 @@ class Report:
             }
 
         if reportType == "custom":
-            self.payload = custom_payload
+            self.payload = json.loads(custom_payload)
         else:
             self.payload = self.loadPayload(reportType)
+    
+        if "startDate" in self.payload:
+            self.payload["startDate"] = self.startDate + "T00:00:00.000Z"
+        if "endDate" in self.payload:
+            self.payload["endDate"] = self.endDate + "T00:00:00.000Z"
         
-        self.ExtractText()
+        self.request_status = 1
+
+        if active_restaurant_loop:
+            logging.info("Active Restaurants Loop: Enabled")
+            with open("active_restaurant.json", "r") as f:
+                json_list = json.load(f)
+
+            self.active_restaurant_list = json_list["active_restaurant"]
+            self.failed_list = []
+
+            for i in self.active_restaurant_list:
+                logging.info("Processing Restaurant: {0}({1})".format(i["name"], i["id"]))
+                self.payload["locationGroupID"] = i["id"]
+
+                logging.info("Payload Submitted: {0}".format(self.payload))
+                self.request_status = self.ExtractText()
+                if self.request_status == 0:
+                    logging.error("Restaurant {0}({1}): REQUEST FAILED...".format(i["name"], i["id"]))
+                    self.failed_list.append(i)
+                else:
+                    self.output_1cell(self.filename)
+            logging.info("List of failed request restaurant: {0}".format(self.failed_list))
+        else:
+            logging.info("Payload Submitted: {0}".format(self.payload))
+            self.request_status = self.ExtractText()
+            if self.request_status == 0:
+                raise Exception("Request Failed...")
+            self.output_1cell(self.filename)
         
     def parseDate(self, date):
         """
@@ -130,7 +164,6 @@ class Report:
 
         return temp_date
 
-
     def loadPayload(self, template):
         """
         Loading payload template from payload.json
@@ -141,8 +174,8 @@ class Report:
             json_template = json.load(f)
         
         payload = json_template[template]
-        payload["startDate"] = self.startDate + "T00:00:00.000Z"
-        payload["endDate"] = self.endDate + "T00:00:00.000Z"
+        #payload["startDate"] = self.startDate + "T00:00:00.000Z"
+        #payload["endDate"] = self.endDate + "T00:00:00.000Z"
         logging.info("Payload: {0}".format(payload))
 
         return payload
@@ -171,6 +204,7 @@ class Report:
         response = requests.request("GET", url, headers=self.headers)
 
         self.status = str(response.json()["status"])
+        logging.info("Status Check: {0}".format(response.json()))
 
     def GetContent(self):
         
@@ -190,15 +224,20 @@ class Report:
         self.CheckStatus()
 
         tries = 0
-        while tries < 5 and self.status != 3:
+        while tries < 10 and self.status != 3:
+            logging.info("Number of Tries: {0}".format(tries))
             time.sleep(10)
+            self.CheckStatus()
             if self.status == "1" or self.status == "2":
                 logging.info("Status: {0} - Pending...".format(self.status))
-                self.CheckStatus()
+                #self.CheckStatus()
+            if self.status == "3": 
+                tries = 100
             if self.status == "5":
                 #return "Shit's hit the fan fam, status = 5"
                 logging.error("Status: {0} - Error...".format(self.status))
-                raise Exception("Request parameters are not valid. Please validate.")
+                #raise Exception("Request parameters are not valid. Please validate.")
+                return 0
             tries += 1
                 
         if self.status == "3":
@@ -207,7 +246,11 @@ class Report:
 
         else:
             #return "Gave up. Status was" + " " + self.status
-            raise Exception( "Gave up. Status was {0}".format(self.status))
+            #raise Exception( "Gave up. Status was {0}".format(self.status))
+            logging.error("Gave up. Status was {0}".format(self.status))
+            return 0
+
+        return 1
 
     def output_1cell(self, filename):
         """
@@ -215,17 +258,31 @@ class Report:
         """
 
         date_concat = "{0} to {1}".format(self.startDate,self.endDate)
-        column_name = ["range", "start_date", "end_date", "content"]
-        data = [date_concat, self.startDate, self.endDate, "{0}".format(self.content)]
-        data_out = [column_name, data]
-        with open(filename, "w") as f:
-            writer = csv.writer(f)
-            #writer.writerow(["range", "start_date", "end_date", "content"])
-            #writer.writerow([date_concat, start_date, end_date, "{0}".format(self.content)])
-            writer.writerows(data_out)
-            #f.write(["content"])
-            #f.write(["{0}"].format(self.content))
-        f.close()
+        if active_restaurant_loop:
+            column_name = ["range", "start_date", "end_date", "location_id", "content"]
+            data = [date_concat, self.startDate, self.endDate, str(self.payload["locationGroupID"]), "{0}".format(self.content)]
+            data_out = [column_name, data]
+        else:
+            column_name = ["range", "start_date", "end_date", "content"]
+            data = [date_concat, self.startDate, self.endDate, "{0}".format(self.content)]
+            data_out = [column_name, data]
+
+        ### If active restaurant loop is true
+        if not os.path.isfile(filename):
+            with open(filename, "w") as f:
+                writer = csv.writer(f)
+                #writer.writerow(["range", "start_date", "end_date", "content"])
+                #writer.writerow([date_concat, start_date, end_date, "{0}".format(self.content)])
+                writer.writerows(data_out)
+                #f.write(["content"])
+                #f.write(["{0}"].format(self.content))
+            f.close()
+        else:
+            with open(filename, "a") as f:
+                writer = csv.writer(f)
+                writer.writerows([data])
+            f.close()
+        
         logging.info("Outputting... ")
         self.produce_manifest(filename)
 
@@ -246,7 +303,8 @@ class Report:
                             #,"delimiter": "|"
                             #,"enclosure": ""
                             }
-
+        if active_restaurant_loop:
+            manifest_template["primary_key"] = ["range", "location_id"]
         #column_header = []
 
         try:
@@ -268,7 +326,7 @@ def main():
     filename = DEFAULT_FILE_DESTINATION+template+".csv"
     #file_out = get_output_tables(out_tables)
     data_in = Report(template, start_date, end_date)
-    data_in.output_1cell(filename)
+    #data_in.output_1cell(filename)
 
     return
 

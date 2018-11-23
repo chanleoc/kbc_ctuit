@@ -5,6 +5,7 @@
         "X-UserID",
         "#X-UserAuthToken",
         "template",
+        "active_restaurant_loop",
         "start_date",
         "end_date",
         "custom_payload"
@@ -37,26 +38,34 @@
             ],
             "propertyOrder": 3
         },
+        "active_restaurant_loop":{
+            "type": "boolean",
+            "title": "Active Loop",
+            "description": "Looping thru the active restaurant location_ids instead of the location_group_id",
+            "default": false,
+            "propertyOrder": 4
+        },
         "start_date":{
             "type": "string",
             "title": "Start Date",
             "description": "Default: today; Alternate Parameters: 1 day ago, 2 days ago, 1 week ago",
             "default": "today",
-            "propertyOrder": 4
+            "propertyOrder": 5
         },
         "end_date": {
             "type": "string",
             "title": "End Date",
             "description": "Default: today; Alternate Parameters: 1 day ago, 2 days ago, 1 week ago",
             "default": "today",
-            "propertyOrder": 5
+            "propertyOrder": 6
         },
         "custom_payload": {
-            "type": "json",
+            "type": "string",
             "title": "Custom Payload",
             "description": "Have to select custom template",
             "default": {},
-            "propertyOrder": 6
+            "format": "json",
+            "propertyOrder": 7
         }
     }
 }
