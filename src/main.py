@@ -227,9 +227,10 @@ class Report:
         response = requests.request(
             "GET", url, headers=self.headers, params=querystring)
 
-        if response.status_code == 500:
+        if response.status_code != 200:
             logging.error("GetContent Status: {}".format(response.status_code))
             logging.error("GetContent Error Message: {}".format(response.text))
+            sys.exit(1)
         logging.info("GetContent Status: {}".format(response.status_code))
 
         self.content = response.text
