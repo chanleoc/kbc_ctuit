@@ -34,6 +34,7 @@
                 "flash",
                 "waste",
                 "ingredient-orders",
+                "labor_by_day",
                 "custom"
             ],
             "propertyOrder": 3
