@@ -140,8 +140,8 @@ class Export:
             # ,"destination": "in.c-mybucket.table"
             "incremental": True, 
             "primary_key": primary_key,
-            "columns": columns
-            # ,"delimiter": "|"
+            "columns": columns,
+            "delimiter": ","
             # ,"enclosure": ""
         }
 
@@ -186,9 +186,9 @@ class Export:
             sys.exit(1)
 
         # Create Labor_by_day folder
-        path = DEFAULT_FILE_DESTINATION+"labor_by_day"
-        if not os.path.exists(path):
-            os.makedirs(path)
+        # path = DEFAULT_FILE_DESTINATION+"labor_by_day"
+        # if not os.path.exists(path):
+        #     os.makedirs(path)
 
         # 10 Jobs request per QUEUE due to API restriction
         job_queue_itr = 0
@@ -203,8 +203,8 @@ class Export:
             "EXPORTID",
             "TOTAL_LABOR_HOURS",
             "TOTAL_LABOR_DOLLARS",
-            "LABOR_%_GROSS",
-            "LABOR_%_NET",
+            "LABOR_GROSS",
+            "LABOR_NET",
             "REG_LABOR_HOURS",
             "REG_LABOR_DOLLARS",
             "OT_LABOR_HOURS",
@@ -217,47 +217,49 @@ class Export:
             "JOBNAME",
             "DOB"
         ]
-        while job_queue_itr < len(list_of_jobs):
-            s = ','
-            job_queue = list_of_jobs[job_queue_itr: job_queue_itr + 10]
-            job_queue_itr += 10
-            logging.info("Parsing JOBID: {}".format(str(s.join(job_queue))))
-            
-            temp_payload = self.payload
-            temp_payload["options"][0]["value"] = str(s.join(job_queue))
-
-            queue_url = "https://api.ctuit.com/api/Export/Queue"
-            queue_response = self.postRequest(queue_url, temp_payload)
-            queue_response_json = queue_response.json()
-
-            # Validate request status
-            tries = 0
-            status = queue_response_json["status"]
-            report_id = queue_response_json["id"]
-            status_url = "https://api.ctuit.com/api/Export/Queue/{}".format(report_id)
-
-            while tries < 10 and status not in (3, 5):
-                time.sleep(2)
-                status_response = self.getRequest(status_url)
-                status_response_json = status_response.json()
-                status = status_response_json["status"]
-                if status == 3:
-                    file_name = status_response_json["fileName"]
-                    logging.info("Downloading {}...".format(file_name))
-                elif status == 5:
-                    pass
-                tries += 1
-            
-            # Get Content
-            first_line = True
-            if status == 3:
-                # report_id = 87652199
-                content_url = "https://api.ctuit.com/api/Export/Queue/{}/content".format(report_id)
-                content_response = self.getRequest(content_url)
-                content_text = content_response.text
+        with open(DEFAULT_FILE_DESTINATION+"labor_by_day.csv", "w") as out_file:
+            writer = csv.writer(out_file)
+            while job_queue_itr < len(list_of_jobs):
+                s = ','
+                job_queue = list_of_jobs[job_queue_itr: job_queue_itr + 10]
+                job_queue_itr += 10
+                logging.info("Parsing JOBID: {}".format(str(s.join(job_queue))))
                 
-                with open(path+"/{}".format(file_name), "w") as out_file:
+                temp_payload = self.payload
+                temp_payload["options"][0]["value"] = str(s.join(job_queue))
+
+                queue_url = "https://api.ctuit.com/api/Export/Queue"
+                queue_response = self.postRequest(queue_url, temp_payload)
+                queue_response_json = queue_response.json()
+
+                # Validate request status
+                tries = 0
+                status = queue_response_json["status"]
+                report_id = queue_response_json["id"]
+                status_url = "https://api.ctuit.com/api/Export/Queue/{}".format(report_id)
+
+                while tries < 10 and status not in (3, 5):
+                    time.sleep(2)
+                    status_response = self.getRequest(status_url)
+                    status_response_json = status_response.json()
+                    status = status_response_json["status"]
+                    if status == 3:
+                        file_name = status_response_json["fileName"]
+                        logging.info("Downloading {}...".format(file_name))
+                    elif status == 5:
+                        pass
+                    tries += 1
+                
+                # Get Content
+                first_line = True
+                if status == 3:
+                    # report_id = 87652199
+                    content_url = "https://api.ctuit.com/api/Export/Queue/{}/content".format(report_id)
+                    content_response = self.getRequest(content_url)
+                    content_text = content_response.text
+                    
                     for line in content_text.split("\n"):
+                        #logging.info(line)
                         if first_line:
                             first_line = False
                             # Validate headers
@@ -265,8 +267,10 @@ class Export:
                                 logging.error("Number of expected columns have changed. Please contact support.")
                                 sys.exit(1)
                         else:
-                            out_file.write(line)
-        
-        self.produce_manifest("labor_by_day", expected_pk, expected_columns)
+                            #out_file.write(line)
+                            writer.writerow(line.split(','))
+
+            out_file.close()
+        self.produce_manifest("labor_by_day.csv", expected_pk, expected_columns)
 
         return
