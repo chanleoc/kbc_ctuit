@@ -139,5 +139,18 @@
         "locationGroupID": 31,
         "reportID": 412,
         "refinementOptions": []
+    },
+    "labor_by_day": {
+        "startDate": "2019-06-01",
+        "endDate": "2019-06-01",
+        "exportID": -106,
+        "locationGroupID": 31,
+        "outputType": 1,
+        "options": [
+            {
+                "name": "JOBID",
+                "value": "181,205,63"
+            }
+        ]
     }
 }
